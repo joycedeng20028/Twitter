@@ -6,8 +6,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
@@ -30,6 +33,22 @@ public class TimelineActivity extends AppCompatActivity {
     Button btnLogout;
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //inflate menu; adds items to action bar if it is present
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.compose) {
+            Toast.makeText(this, "Compose", Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
@@ -46,6 +65,8 @@ public class TimelineActivity extends AppCompatActivity {
         rvTweets.setAdapter(adapter);
         btnLogout = findViewById(R.id.btnLogout);
         populateHomeTimeline();
+
+
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
