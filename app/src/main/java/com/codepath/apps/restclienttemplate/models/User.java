@@ -24,20 +24,4 @@ public class User {
         user.profileImageUrl = jsonObject.getString("profile_image_url_https");
         return user;
     }
-//    @ColumnInfo
-//    String name;
-//
-//    // normally this field would be annotated @PrimaryKey because this is an embedded object
-//    // it is not needed
-//    @ColumnInfo
-//    Long twitter_id;
-
-//    public static User parseJSON(JSONObject tweetJson) {
-//
-//        User user = new User();
-//        this.twitter_id = tweetJson.getLong("id");
-//        this.name = tweetJson.getString("name");
-//        return user;
-//    }
-
 }
