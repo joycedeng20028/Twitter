@@ -63,13 +63,13 @@ public class ComposeActivity extends AppCompatActivity {
                             setResult(RESULT_OK, intent);
                             finish();
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            Log.e("Compose", "Error" + e);
                         }
                     }
 
                     @Override
                     public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                        Log.e(TAG, "OnFailure to publish tweet", throwable);
+                        Log.e(TAG, "OnFailure to publish tweet" + response, throwable);
                     }
                 });
             }

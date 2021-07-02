@@ -3,6 +3,7 @@ package com.codepath.apps.restclienttemplate;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import android.widget.LinearLayout;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -13,8 +14,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+import android.widget.ProgressBar;
 
+import com.codepath.apps.restclienttemplate.models.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.asynchttpclient.callback.JsonHttpResponseHandler;
 
@@ -27,7 +29,7 @@ import java.util.List;
 
 import okhttp3.Headers;
 
-public class TimelineActivity extends AppCompatActivity {
+public class TimelineActivity extends AppCompatActivity implements TweetsAdapter.OnTweetClickListener {
 
     public static final String TAG = "TimelineActivity";
     private final int REQUEST_CODE  = 20;
@@ -37,6 +39,8 @@ public class TimelineActivity extends AppCompatActivity {
     TweetsAdapter adapter;
     Button btnLogout;
     private SwipeRefreshLayout swipeContainer;
+    ProgressBar pb;
+    EndlessRecyclerViewScrollListener scrollListener;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -98,14 +102,24 @@ public class TimelineActivity extends AppCompatActivity {
         rvTweets = findViewById(R.id.rvTweets);
         //init the list of tweets and adapter
         tweets = new ArrayList<>();
-        adapter = new TweetsAdapter(this, tweets);
+        adapter = new TweetsAdapter(this, this, tweets);
         //recycler view setup: layout manager and adapter
-        rvTweets.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        rvTweets.setLayoutManager(layoutManager);
         rvTweets.setAdapter(adapter);
         btnLogout = findViewById(R.id.btnLogout);
+        pb = (ProgressBar) findViewById(R.id.pbLoading);
+
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                Log.i(TAG, "onLoadMore: " + page);
+                loadMoreData();
+            }
+        };
+        // Adds the scroll listener to the recycler view
+        rvTweets.addOnScrollListener(scrollListener);
         populateHomeTimeline();
-
-
 
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -142,7 +156,26 @@ public class TimelineActivity extends AppCompatActivity {
         });
     }
 
+    public void loadMoreData() {
+        client.getMoreTweets(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Headers headers, JSON json) {
+                JSONArray jsonArray = json.jsonArray;
+                try{
+                    List<Tweet> tweets = Tweet.fromJsonArray(jsonArray);
+                    adapter.addAll(tweets);
+                }catch(JSONException e){
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+            }
+        }, tweets.get(tweets.size() - 1).id);
+    }
+
     private void populateHomeTimeline() {
+        pb.setVisibility(ProgressBar.VISIBLE);
         client.getHomeTimeline(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON json) {
@@ -159,9 +192,57 @@ public class TimelineActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
-                Log.e(TAG, "onFailure", throwable);
+                Log.e(TAG, "onFailure" + response, throwable);
             }
         });
+        pb.setVisibility(ProgressBar.INVISIBLE);
+    }
+
+    @Override
+    public void onItemClick(View itemView, int position) {
+    }
+
+    @Override
+    public void onLikeClick(final int pos, boolean isChecked) {
+        if (!isChecked) {
+            client.likeTweet(tweets.get(pos).id, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                    tweets.get(pos).like = true;
+                }
+
+                @Override
+                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                }
+            });
+        } else {
+            client.unlikeTweet(tweets.get(pos).id, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                    tweets.get(pos).like = false;
+                }
+
+                @Override
+                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onRetweet(final int pos, boolean isChecked) {
+        if (!isChecked) {
+            client.retweet(tweets.get(pos).id, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Headers headers, JSON json) {
+                    tweets.get(pos).retweet = true;
+                }
+
+                @Override
+                public void onFailure(int statusCode, Headers headers, String response, Throwable throwable) {
+                }
+            });
+        }
     }
 
     public void onLogoutButton() {

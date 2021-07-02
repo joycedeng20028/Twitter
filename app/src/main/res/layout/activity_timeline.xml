@@ -35,4 +35,11 @@
         android:elevation="200dp"
         android:shadowColor="#000000"
         android:text="Log Out" />
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:visibility="invisible"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </RelativeLayout>

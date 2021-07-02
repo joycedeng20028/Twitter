@@ -28,6 +28,9 @@ public class Tweet {
     public String createdAt;
     public User user;
     public String media;
+    public long id;
+    public boolean like;
+    public boolean retweet;
 
     private static final int SECOND_MILLIS = 1000;
     private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
@@ -38,14 +41,22 @@ public class Tweet {
 
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
-        tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
+        tweet.id = jsonObject.getLong("id");
+        tweet.like = jsonObject.getBoolean("favorited");
+        tweet.retweet = jsonObject.getBoolean("retweeted");
         JSONObject entities = jsonObject.getJSONObject("entities");
         if (entities.has("media")){
             tweet.media = entities.getJSONArray("media").getJSONObject(0).getString("media_url_https");
         } else {
             tweet.media = "";
+        }
+        if (jsonObject.has("full_text")) {
+            tweet.body = jsonObject.getString("full_text");
+        } else {
+            tweet.body = jsonObject.getString("text");
+            Log.i("Extended tweet", "no extended tweet");
         }
         return tweet;
     }
