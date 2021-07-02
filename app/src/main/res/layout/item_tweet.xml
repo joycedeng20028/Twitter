@@ -50,7 +50,7 @@
             android:layout_marginTop="2dp"
             android:layout_toEndOf="@+id/ivProfileImage"
             android:autoLink="all"
-            tools:text="This is my tweet!" />
+            tools:text="Tweet body" />
 
         <TextView
             android:id="@+id/tvTimestamp"
