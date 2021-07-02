@@ -52,7 +52,6 @@ GIF created with Licecap.
 
 ## Notes
 
-Describe any challenges encountered while building the app.
  One challenge was figuring out how to access the full text of a tweet, since some tweets had a field for "full_text" while other short tweets only had "text". Another challenge I ran across was figuring out how to embed the tweet's media. It was confusing because the API for the media url was contained within another JSONObject called "entities".
 
 ## Open-source libraries used
