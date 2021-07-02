@@ -200,6 +200,9 @@ public class TimelineActivity extends AppCompatActivity implements TweetsAdapter
 
     @Override
     public void onItemClick(View itemView, int position) {
+        Intent j = new Intent(TimelineActivity.this, DetailActivity.class);
+        j.putExtra("tweet", Parcels.wrap(tweets.get(position)));
+        startActivity(j);
     }
 
     @Override
